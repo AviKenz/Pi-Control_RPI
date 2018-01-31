@@ -19,18 +19,20 @@ args = sys.argv
 argsLen = len(args)
 
 def log(code, message):
+	result = "";
 	if(code == "e"):
-		print "[ERROR] " + message
+		result = "<p class='interpreter error'>" + message + "</p>"
 	elif(code == "w"):
-		print "[WARN] " + message
+		result = "<p class='interpreter warn'>" + message + "</p>"
 	elif(code == "i"):
-		print "[INFO] " + message
+		result = "<p class='interpreter info'>" + message + "</p>"
 	elif(code == "d"):
-		print "[DEBUG] " + message
+		result = "<p class='interpreter debug'>" + message + "</p>"
 	elif(code == "t"):
-		print "[TODO] " + message
+		result = "<p class='interpreter todo'>" + message + "</p>"
 	else:
-		print "[NONAME] " + message
+		result = "<p class='interpreter noname'>" + message + "</p>"
+	print result
 		
 # get value of key in paramter passed to the py script
 def get(key, isRequired = False, isNumber = True):

@@ -53,7 +53,8 @@ class RpiCom{
 	}
 	
 	private static void callInterpreter (String cmd) throws Exception {
-		System.out.println("callInterpreter("+ cmd + ")");
+		System.out.println("<div id='comMessage'>");
+		System.out.println("<p class='com debug'>callInterpreter("+ cmd + ")</p>");
 		// create runtime to execute external command
 		Runtime rt = Runtime.getRuntime();
 		Process pr = rt.exec(cmd);
@@ -74,6 +75,7 @@ class RpiCom{
 			System.out.println(dbgScn.next());
 			newLine();
 		}
+		System.out.println("</div>");
  
 		errScn.close();
 		dbgScn.close();
