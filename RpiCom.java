@@ -28,15 +28,16 @@ class RpiCom{
 
 		//  Print the required CGI header.
 		System.out.println(CgiLib.Header());
-		System.out.println("<p>" + interpreterParam + "</p>");
+		System.out.println("<style type='text/css'>p {margin-top: 0px; margin-bottom: 0px}</style>");
+		//System.out.println("<p>" + interpreterParam + "</p>");
 		  
 
 		//  Print the name/value pairs sent from the browser.
-		System.out.println("Here are the name/value pairs from the form:");
-		System.out.println(CgiLib.Variables(formData));
+		//System.out.println("Here are the name/value pairs from the form:");
+		//System.out.println(CgiLib.Variables(formData));
 
-		//  Print the Environment variables sent in from the Unix script.
-		System.out.println("Here are the CGI environment variables/value pairs" + "passed in from the UNIX script:");
+		//  Print the Environment variables sent in from the CGI script.
+		System.out.println("<h4 style='color: blue'><u>Here are the CGI environment variables/value pairs passed in from the CGI script: </u></h4>");
 		System.out.println(CgiLib.Environment());
 
 		// Calling Rpi Interpreter
@@ -54,6 +55,7 @@ class RpiCom{
 	
 	private static void callInterpreter (String cmd) throws Exception {
 		System.out.println("<div id='comMessage'>");
+		System.out.println("<h4 style='color: blue'><u>Here is the API Call: </u></h4>");
 		System.out.println("<p class='com debug'>callInterpreter("+ cmd + ")</p>");
 		// create runtime to execute external command
 		Runtime rt = Runtime.getRuntime();
@@ -66,6 +68,7 @@ class RpiCom{
 		errScn.useDelimiter("\r\n");
 		dbgScn.useDelimiter("\r\n");
 		
+		System.out.println("<h4 style='color: blue'><u>Here is the API output: </u></h4>");
 		while (errScn.hasNext()) {
 			System.out.println(errScn.next());
 			newLine();

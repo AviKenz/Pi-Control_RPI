@@ -41,7 +41,7 @@ def log(code, message):
 		clName = 'interpreter todo'
 	else:
 		clName = 'interpreter noname'
-	result = "<span class=" + clName + ">" + now + " " + message + "</span>"
+	result = "<p class=" + clName + ">" + now + " " + message + "</p>"
 	print result
 	
 # get value of key in paramter passed to the py script
