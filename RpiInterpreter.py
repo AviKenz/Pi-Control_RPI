@@ -55,4 +55,25 @@ def handleParam():
 # start of programm
 if __name__ == "__main__":
 	AppLib.log("d", "__main__")
-	handleParam()
+	#handleParam()
+	if(AppLib.getName() == AppLib.SWITCH_CONTROL_NAME):
+		AppLib.handleSwitchControl()
+	elif(AppLib.getName() == AppLib.BUTTON_CONTROL_NAME):
+		AppLib.handleButtonControl()
+	elif(AppLib.getName() == AppLib.BLINK_CONTROL_NAME):
+		AppLib.handleBlinkControl()
+	else:
+		AppLib.log("t", "Control Handler not implemented yet...")
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
