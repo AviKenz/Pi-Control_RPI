@@ -27,6 +27,9 @@ KEY_SIGNAL_TYPE = "signal_typ"
 KEY_FREQUENCY = "frequency"
 KEY_DUTY_CYCLE = "duty_cycle"
 
+# avoid warnings
+GPIO.setwarnings(False)
+
 # print parsed message for the Android Applikation (Pi$Control)
 def log(code, message):
 	now = datetime.datetime.now()

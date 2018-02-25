@@ -5,47 +5,41 @@ import java.util.Scanner;
 class RpiCom{
 	
 	// form variables
-	private static String paramSeparator = " ";
+	private static String scriptParamSeparator = " ";
 	private static Hashtable formData = null;
 	private static String queryString = null;
 	
+	// User App
+	private static String userAppPath = "/usr/lib/cgi-bin/";
+	private static String userAppName = "UserApp.py";
+	private static String userAppParams = "";
 	
-	// Rpi Variables
-	private static String interpreterPath = "/usr/lib/cgi-bin/";
-	private static String interpreterName = "RpiInterpreter.py";
-	
-	// param to pass to interpreter
-	private static String interpreterParam = "";
-	
-	// interpreter environment
+	// user app environment
 	private static String envName = "python";
 	
 	public static void main(String args[]){	
-		// get data parse and generate cmd
+		
+		// recieve and parse form params passed by the CGI-Script 
 		formData = CgiLib.ReadParse(System.in);
 		queryString = getQueryString();
-		interpreterParam = getParamFormQueryString(queryString);
+		userAppParams = getParamFormQueryString(queryString);
 
-		//  Print the required CGI header.
+		//  Print the HTML CGI header.
 		System.out.println(CgiLib.Header());
+		
+		// delete default margin between paragraph elements
 		System.out.println("<style type='text/css'>p {margin-top: 0px; margin-bottom: 0px}</style>");
-		//System.out.println("<p>" + interpreterParam + "</p>");
-		  
-
-		//  Print the name/value pairs sent from the browser.
-		//System.out.println("Here are the name/value pairs from the form:");
-		//System.out.println(CgiLib.Variables(formData));
 
 		//  Print the Environment variables sent in from the CGI script.
 		System.out.println("<h4 style='color: blue'><u>Here are the CGI environment variables/value pairs passed in from the CGI script: </u></h4>");
 		System.out.println(CgiLib.Environment());
 
-		// Calling Rpi Interpreter
-		String cmd = buildCmd();
+		// Run user App and get Output
+		String cmd = generateCmd();
 		try {
-			callInterpreter(cmd);
+			runUserSoftware(cmd);
 		} catch (Exception e) {
-			System.err.println("could not run Interpreter");
+			System.err.println("could not run user app");
 		}
 		
 		// Create the Bottom of the returned HTML page to close it cleanly.
@@ -53,22 +47,43 @@ class RpiCom{
 		  
 	}
 	
-	private static void callInterpreter (String cmd) throws Exception {
+	private static void runUserSoftware (String cmd) throws Exception {
 		System.out.println("<div id='comMessage'>");
-		System.out.println("<h4 style='color: blue'><u>Here is the API Call: </u></h4>");
-		System.out.println("<p class='com debug'>callInterpreter("+ cmd + ")</p>");
+		System.out.println("<h4 style='color: blue'><u>Here is the user command used to run user software: </u></h4>");
+		System.out.println("<p class='com debug'>" + cmd + "</p>");
+		
 		// create runtime to execute external command
 		Runtime rt = Runtime.getRuntime();
 		Process pr = rt.exec(cmd);
 		pr.waitFor();
 		 
+		// print user app ouput on HTML
+		getProcessOuput(pr);
+	}
+	
+	private static void newLine() {
+		System.out.println("<br />");
+	}
+	
+	private static String generateCmd() {
+		return envName + scriptParamSeparator + userAppPath + userAppName + scriptParamSeparator + userAppParams;
+	}
+	
+	private static String getQueryString() {
+		return System.getProperty("cgi.query_string");
+	}
+	
+	private static String getParamFormQueryString(String queryString) {
+		return queryString.replace("&", scriptParamSeparator);
+	}
+	
+	private static void getProcessOuput(Process pr) {
 		Scanner errScn = new Scanner(pr.getErrorStream());
-		Scanner dbgScn = new Scanner(pr.getInputStream());
-		
 		errScn.useDelimiter("\r\n");
+		Scanner dbgScn = new Scanner(pr.getInputStream());
 		dbgScn.useDelimiter("\r\n");
 		
-		System.out.println("<h4 style='color: blue'><u>Here is the API output: </u></h4>");
+		System.out.println("<h4 style='color: blue'><u>Here is the user software output: </u></h4>");
 		while (errScn.hasNext()) {
 			System.out.println(errScn.next());
 			newLine();
@@ -82,43 +97,5 @@ class RpiCom{
  
 		errScn.close();
 		dbgScn.close();
-	}
-	
-	private static void newLine() {
-		System.out.println("<br />");
-	}
-	
-	private static String buildCmd() {
-		return envName + paramSeparator + interpreterPath + interpreterName + paramSeparator + interpreterParam;
-	}
-	
-	private static String getQueryString() {
-		return System.getProperty("cgi.query_string");
-	}
-	
-	private static String getParamFormQueryString(String queryString) {
-		return queryString.replace("&", paramSeparator);
-	}
-	
-	public static void addInterpreterParam(String param) {
-		interpreterParam += paramSeparator + param;
-	}
-	
-	public static void addInterpreterParam(String key, Object value) {
-		interpreterParam += paramSeparator + key + "=" + value.toString();
-	}
-	
-	public static void removeInterpreterParam(String key) {
-		String[] params = interpreterParam.split(paramSeparator);
-		String resultParam = "";
-		for(int i = 0; i < params.length; i++) {
-			if( params[i].contains(key) ) {
-				params[i] = "";
-			}
-		}
-		for(String str : params) {
-			resultParam += str + paramSeparator;
-		}
-		interpreterParam = resultParam;
 	}
 }
