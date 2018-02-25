@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import os
 import RPi.GPIO as GPIO
 import datetime
 import time
@@ -23,6 +24,8 @@ KEY_STATE = "state"
 KEY_INTERVAL = "interval"
 KEY_NUMBER_OF_CYCLES = "number_of_cycles"
 KEY_SIGNAL_TYPE = "signal_typ"
+KEY_FREQUENCY = "frequency"
+KEY_DUTY_CYCLE = "duty_cycle"
 
 def log(code, message):
 	now = datetime.datetime.now()
@@ -30,18 +33,18 @@ def log(code, message):
 	clName = ""
 	result = "";
 	if(code == "e"):
-		clName = 'interpreter error'
+		clName = 'userapp error'
 	elif(code == "w"):
-		clName = 'interpreter warn'
+		clName = 'userapp warn'
 	elif(code == "i"):
-		clName = 'interpreter info'
+		clName = 'userapp info'
 	elif(code == "d"):
-		clName = 'interpreter debug'
+		clName = 'userapp debug'
 	elif(code == "t"):
-		clName = 'interpreter todo'
+		clName = 'userapp todo'
 	else:
-		clName = 'interpreter noname'
-	result = "<p class=" + clName + ">" + now + " " + message + "</p>"
+		clName = 'usersoft noname'
+	result = "<p class=\'" + clName + "\'>" + now + " " + message + "</p>"
 	print result
 	
 # get value of key in paramter passed to the py script
@@ -120,54 +123,15 @@ def handleBlinkControl():
 			GPIO.output(pin, GPIO.LOW)
 			GPIO.cleanup()
 			log("d", "Programm Interrupted with CTRL + C")
-
-# output HIGH or LOW to choosen GPIO
-def outputState(pinNr, state, release = False):
-	log("d", "outputState({}, {})".format(pinNr, state))
-	GPIO.output(pinNr, state)
-	if(state == GPIO.LOW and release):
-		releaseGPIO(pinNr)
-
-# free GPIO ressources
-def releaseGPIO(pinNr):
-	log("d", "releaseGPIO({})".format(pinNr))
-	GPIO.output(pinNr, GPIO.LOW)
-	GPIO.cleanup()
-
-# output 1 and 0 once to choosen GPIO port; CTRL + C abort the process
-def blinkOnce(pinNr, interval):
-	try:
-		outputState(pinNr, GPIO.HIGH)
-		time.sleep(interval)
-		outputState(pinNr, GPIO.LOW)
-		time.sleep(interval)
-	except KeyboardInterrupt:
-		log("d", "Programm Interrupted with CTRL + C")
-		releaseGPIO(pinNr)
-
-# alternate state on GPIO a couple of times(nbrOfCycles) in some interval of time(interval in s);	
-def blink(pinNr, interval, nbrOfCycles):
-	log("d", "blink({}, {})".format(pinNr, interval))
-	if(nbrOfCycles == 0):
-		while(True):
-			blinkOnce(pinNr, interval)
-	else:
-		n = nbrOfCycles
-		i = 0
-		while(i < n):
-			blinkOnce(pinNr, interval)
-			i += 1
-		releaseGPIO(pinNr)
-
-# globally handle signal output on GPIO
-def handleDcOutput(pinNr, state, interval, nbrOfCycles):
-	log("d", "handleDcOutput({}, {}, {}, {})".format(pinNr, state, interval, nbrOfCycles))	
-	if(interval == 0 or interval == ""):
-		# make sure to release the GPIO when state is GPIO.LOW
-		outputState(pinNr, state, True)
-	else:
-		blink(pinNr, interval, nbrOfCycles)
-
-def handlePwmOutput(ch, freq, dc):
-	log("d", "handlePwmOutput({}, {}, {})".format(ch, freq, dc))		
-	
+			
+def handlePwmControl():
+	mode = get(KEY_MODE, True)
+	pin = get(KEY_PIN_NUMBER, True)
+	freq = get(KEY_FREQUENCY, True)
+	dc = get(KEY_DUTY_CYCLE, True)
+	# the action is for the pwm daemon; values: start|stop|restart
+	action = "start"
+	if(dc == 0):
+		action = "stop"
+	log("d", "call Script PwmDaemon.py: action: {} | channel: {} | frequency: {} | duty cycle: {}".format(action, pin, freq, dc))
+	os.system("python /usr/lib/cgi-bin/PwmDaemon.py {} {} {} {} {}".format(action, mode, pin, freq, dc))
