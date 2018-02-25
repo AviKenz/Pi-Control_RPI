@@ -6,7 +6,6 @@ import PiControlApi as API
 # start of programm
 if __name__ == "__main__":
 	API.log("d", "__main__")
-	#handleParam()
 	if(API.getName() == API.SWITCH_CONTROL_NAME):
 		API.handleSwitchControl()
 	elif(API.getName() == API.BUTTON_CONTROL_NAME):
